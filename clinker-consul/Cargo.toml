@@ -1,0 +1,20 @@
+[package]
+name = "clinker-consul"
+version = "0.1.0"
+authors = ["Zack Angelo <zackangelo@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+futures-preview = { version = "=0.3.0-alpha.18", default-features = false, features = ["alloc"]}
+futures-util-preview = "=0.3.0-alpha.18"
+hyper = { git = "https://github.com/hyperium/hyper", features = ["unstable-stream"], rev = "2b0405c48c10bca7893c30ea960ac20a41a8578f" }
+tokio = "=0.2.0-alpha.4"
+bytes = "0.4"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+async-stream = "0.1.1"
+http = "0.1"
+log = "0.4.0"
+env_logger = "0.7"
+async-trait = "0.1.13"
+error-chain = "0.12.1"

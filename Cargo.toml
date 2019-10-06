@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "clinker-gen",
+    "clinker-server",
+    "clinker-consul"
+]

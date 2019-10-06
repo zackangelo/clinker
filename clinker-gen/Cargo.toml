@@ -1,0 +1,21 @@
+[package]
+name = "clinker-gen"
+version = "0.1.0"
+authors = ["Zack Angelo <zackangelo@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+tonic = { path = "/Users/zack.angelo/git/tonic/tonic" }
+futures-preview = { version = "=0.3.0-alpha.18", default-features = false, features = ["alloc"]}
+tokio = "=0.2.0-alpha.4"
+prost = "0.5"
+prost-types = "0.5"
+prost-derive = "0.5"
+bytes = "0.4"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+async-stream = "0.1.1"
+http = "0.1"
+
+[build-dependencies]
+tonic-build = { path = "/Users/zack.angelo/git/tonic/tonic-build" }

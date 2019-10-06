@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package io.linkerd.proxy.http_types;
+
+option go_package = "github.com/linkerd/linkerd2-proxy-api/go/http_types";
+
+message HttpMethod {
+  enum Registered {
+    GET = 0;
+    POST = 1;
+    PUT = 2;
+    DELETE = 3;
+    PATCH = 4;
+    OPTIONS = 5;
+    CONNECT = 6;
+    HEAD = 7;
+    TRACE = 8;
+  }
+
+  oneof type {
+    Registered registered = 1;
+    string unregistered = 2;
+  }
+}
+
+message Scheme {
+  enum Registered {
+    HTTP = 0;
+    HTTPS = 1;
+  }
+
+  oneof type {
+    Registered registered = 1;
+    string unregistered = 2;
+  }
+}
+
+message Headers {
+  message Header {
+    string name = 1;
+    bytes value = 2;
+  }
+
+  repeated Header headers = 1;
+}
