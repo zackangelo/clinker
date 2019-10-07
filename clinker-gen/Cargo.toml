@@ -5,9 +5,9 @@ authors = ["Zack Angelo <zackangelo@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-tonic = { path = "/Users/zack.angelo/git/tonic/tonic" }
-futures-preview = { version = "=0.3.0-alpha.18", default-features = false, features = ["alloc"]}
-tokio = "=0.2.0-alpha.4"
+tonic = { git = "https://github.com/hyperium/tonic", rev = "01e72d9a95c2dad6bf03db25ddb597b3c972981e" }
+futures-preview = { version = "=0.3.0-alpha.19", default-features = false, features = ["alloc"]}
+tokio = "=0.2.0-alpha.6"
 prost = "0.5"
 prost-types = "0.5"
 prost-derive = "0.5"
@@ -18,4 +18,4 @@ async-stream = "0.1.1"
 http = "0.1"
 
 [build-dependencies]
-tonic-build = { path = "/Users/zack.angelo/git/tonic/tonic-build" }
+tonic-build = { git = "https://github.com/hyperium/tonic", rev = "01e72d9a95c2dad6bf03db25ddb597b3c972981e" }

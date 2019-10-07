@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug,info};
 
 use clinker_consul::ConsulClient;
 
@@ -12,10 +12,15 @@ impl ClinkerDest {
 
 use clinker_gen::linkerd;
 use linkerd::destination::server::{Destination, DestinationServer};
-use linkerd::destination::{DestinationProfile, GetDestination, update, Update, NoEndpoints};
-use tonic::{Request, Response, Server, Status};
+use linkerd::destination::{DestinationProfile, GetDestination, update, Update, NoEndpoints, WeightedAddrSet, WeightedAddr};
+use tonic::{Request, Response, transport::Server, Status};
 use futures::{Stream, StreamExt};
 use tokio::sync::mpsc;
+use tokio_timer::Interval;
+use std::time::Duration;
+use std::collections::HashMap;
+// use std::net;
+
 
 #[tonic::async_trait]
 impl Destination for ClinkerDest {
@@ -34,12 +39,62 @@ impl Destination for ClinkerDest {
 
         tokio::spawn(async move {
             let empty = Update {
-                update: Some(update::Update::NoEndpoints(NoEndpoints { exists: true })),
+                update: None, // Some(update::Update::NoEndpoints(NoEndpoints { exists: true })),
             };
 
+            let au_greeter_tcp: ::std::net::SocketAddr = "127.0.0.1:50051".parse().unwrap();
+
+            let au_greeter_addr = WeightedAddr {
+                addr: Some((&au_greeter_tcp).into()),
+                weight: 1,
+                metric_labels: HashMap::new(),
+                tls_identity: None,
+                protocol_hint: None,
+            };
+
+            let us_greeter_tcp: ::std::net::SocketAddr = "127.0.0.1:50052".parse().unwrap();
+
+            let us_greeter_addr = WeightedAddr {
+                addr: Some((&us_greeter_tcp).into()),
+                weight: 1,
+                metric_labels: HashMap::new(),
+                tls_identity: None,
+                protocol_hint: None,
+            };
+
+            let greeter_addr_set = WeightedAddrSet {
+                addrs: vec![au_greeter_addr, us_greeter_addr],
+                metric_labels: HashMap::new(),
+            };
+
+            let greeter_update = Update {
+                update: Some(update::Update::Add(greeter_addr_set)),
+            };
+
+            let mut timer = Interval::new_interval(Duration::new(5,0));
+            let mut i: u32 = 0;
+
             loop {
-                info!("sending empty response for get_dest...");
-                tx.send(Ok(empty.clone())).await.unwrap();
+                // info!("sending empty response for get_dest...");
+
+                let update: Update = if i == 0 {
+                    i += 1;
+                    greeter_update.clone()
+                } else {
+                    empty.clone()
+                };
+
+                info!("sending update: {:?}", update);
+
+                let send_result = tx.send(Ok(update.clone())).await;
+
+                match send_result {
+                    Ok(_) => timer.next().await.unwrap(),
+                    Err(err) => {
+                        debug!("error sending stream frame to update listener: {}", err);
+                        break; //allow channel to close
+                    }
+                };
             }
         });
 
