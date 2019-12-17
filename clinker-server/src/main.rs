@@ -1,6 +1,7 @@
 use log::{debug,info};
-
 use clinker_consul::ConsulClient;
+
+mod routing;
 
 pub struct ClinkerDest;
 
@@ -137,17 +138,21 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _ = ::env_logger::init();
     info!("clinker control plane gRPC server started!");
 
-    // let client = ConsulClient::new();
+    let client = ConsulClient::new();
     // let dcs = client.datacenters().await.unwrap();
     // println!("dcs = {:?}", dcs);
 
     // let services = client.services().await.unwrap();
     // println!("services = {:?}", services);
-    let addr = "127.0.0.1:5000".parse().unwrap();
-    let dest_svc = ClinkerDest::new();
-    Server::builder()
-        .serve(addr, DestinationServer::new(dest_svc))
-        .await?;
+
+    let discovery_chain = client.discovery_chain(String::from("http-1")).await.unwrap();
+    println!("discovery chain = {:#?}", discovery_chain);
+
+    // let addr = "127.0.0.1:5000".parse().unwrap();
+    // let dest_svc = ClinkerDest::new();
+    // Server::builder()
+    //     .serve(addr, DestinationServer::new(dest_svc))
+    //     .await?;
     Ok(())
 }
 

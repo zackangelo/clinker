@@ -5,6 +5,7 @@ use serde::Deserialize;
 pub mod agent;
 pub mod catalog;
 pub mod errors;
+pub mod discovery_chain;
 
 use errors::*;
 
@@ -66,6 +67,19 @@ impl ConsulClient {
         let services = serde_json::from_slice(&body).unwrap();
 
         Ok(services)
+    }
+
+    pub async fn discovery_chain(&self, name: String) -> Result<discovery_chain::DiscoveryChainResponse> {
+        use futures_util::try_stream::TryStreamExt;
+
+        let uri = format!("http://34.70.99.255:8500/v1/discovery-chain/{}", name)
+            .parse()
+            .unwrap();
+        let http_response = self.http_client.get(uri).await.unwrap();
+        let body = http_response.into_body().try_concat().await.unwrap();
+        let chain = serde_json::from_slice(&body).unwrap();
+
+        Ok(chain)
     }
 }
 
